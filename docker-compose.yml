@@ -1,0 +1,33 @@
+version: '3'
+services:
+  fleet:
+    build: './fleet'
+    ports:
+      - "3001:3000"
+    depends_on:
+      - db
+    environment:
+      - MONGO_DB_URI=mongodb://db/fleet-management
+
+  simulation:
+    build: './simulation'
+    ports:
+      - "3002:3000"
+    depends_on:
+      - db
+    environment:
+      - MONGO_DB_URI=mongodb://db/fleet-management
+
+  inspector:
+    build: './inspector'
+    ports:
+      - "3003:3000"
+    depends_on:
+      - db
+    environment:
+      - MONGO_DB_URI=mongodb://db/fleet-management
+
+  db:
+    image: mongo
+    ports:
+      - "27017:27017"
