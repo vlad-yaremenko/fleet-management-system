@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const Driver = require('../../../db/models/Driver');
-const Car = require('../../../db/models/Car');
 const Trip = require('../../../db/models/Trip');
 const { clearNotSet } = require('../../../utils/helper');
 
@@ -60,11 +59,27 @@ router.put('/:id', async (req, res) => {
     res.status(500).send({ error });
   }
 });
+router.put('/:id/car', async (req, res) => {
+  try {
+    const { carId } = req.body;
+
+    await Driver.update(req.params.id, {
+      _car: carId
+    });
+
+    res.send(await Driver.findById(req.params.id)
+      .populate('_car')
+      .exec());
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error });
+  }
+});
 router.put('/:id/trip', async (req, res) => {
   try {
-    const car = await Car.find({ _driver: req.params.id });
+    const driver = await Driver.findById(req.params.id);
 
-    if (!car) {
+    if (!driver._car) {
       res.send({ msg: `You can't assign a trip to the driver without a car!` });
 
       return;

@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const Car = require('../../../db/models/Car');
+const Driver = require('../../../db/models/Driver');
 const { clearNotSet } = require('../../../utils/helper');
 
 router.get('/', async (req, res) => {
@@ -22,9 +23,19 @@ router.get('/:id', async (req, res) => {
     res.status(500).send({ error });
   }
 });
+router.get('/:id/driver', async (req, res) => {
+  try {
+    const driver = await Driver.find({ _car: req.params.id });
+
+    res.send(driver);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error });
+  }
+});
 router.post('/', async (req, res) => {
   try {
-    const { registrationPlate, brand, model, color, vin, type, driverId } = req.body;
+    const { registrationPlate, brand, model, color, vin, type } = req.body;
 
     const car = await Car.create({
       registrationPlate,
@@ -32,8 +43,7 @@ router.post('/', async (req, res) => {
       model,
       color,
       vin,
-      type,
-      _driver: driverId
+      type
     });
 
     res.send(car);
@@ -44,7 +54,7 @@ router.post('/', async (req, res) => {
 });
 router.put('/:id', async (req, res) => {
   try {
-    const { registrationPlate, brand, model, color, vin, type, driverId } = req.body;
+    const { registrationPlate, brand, model, color, vin, type } = req.body;
 
     const car = await Car.update(req.params.id, clearNotSet({
       registrationPlate,
@@ -52,27 +62,10 @@ router.put('/:id', async (req, res) => {
       model,
       color,
       vin,
-      type,
-      _driver: driverId
+      type
     }));
 
     res.send(car);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error });
-  }
-});
-router.put('/:id/driver', async (req, res) => {
-  try {
-    const { driverId } = req.body;
-
-    await Car.update(req.params.id, {
-      _driver: driverId
-    });
-
-    res.send(await Car.findById(req.params.id)
-      .populate('_driver')
-      .exec());
   } catch (error) {
     console.error(error);
     res.status(500).send({ error });

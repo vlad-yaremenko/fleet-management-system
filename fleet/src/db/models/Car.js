@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const Faker = require('faker');
 
 const carSchema = new Schema({
   registrationPlate: {
@@ -13,11 +14,7 @@ const carSchema = new Schema({
     type: String,
     required: true
   },
-  type: String,
-  _driver: {
-    type: Schema.Types.ObjectId,
-    ref: 'driver'
-  }
+  type: String
 });
 
 mongoose.model('car', carSchema);
@@ -32,3 +29,18 @@ module.exports = {
   find: (query = {}) => Car.findOne(query),
   findById: (id) => Car.findById(id),
 };
+
+// ----------- MOCK -------------------
+
+const getCar = (i) => ({
+  "registrationPlate": `${Faker.address.cityPrefix()} ${Faker.random.number()}`,
+  "brand": Faker.company.companyName(),
+  "model": Faker.internet.userName(),
+  "color": Faker.internet.color(),
+  "vin": Faker.random.number(),
+  "type": "Crossover"
+});
+
+for (let i = 0; i < 10; i++) {
+  new Car(getCar(i)).save();
+}

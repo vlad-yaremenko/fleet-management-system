@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const Faker = require('faker');
 
 const tripSchema = new Schema({
-  length: Number,
   budget: Number,
   status: {
     type: String,
@@ -32,3 +32,14 @@ module.exports = {
   findById: (id) => Trip.findById(id),
   isExists: (query) => Trip.exists(query)
 };
+
+// ----------- MOCK -------------------
+
+const getTrip = () => ({
+  "budget": Faker.random.number(),
+  "path": [[Faker.address.latitude(), Faker.address.longitude()], [Faker.address.latitude(), Faker.address.longitude()], [Faker.address.latitude(), Faker.address.longitude()], [Faker.address.latitude(), Faker.address.longitude()]]
+});
+
+for (let i = 0; i < 10; i++) {
+  new Trip(getTrip()).save();
+}

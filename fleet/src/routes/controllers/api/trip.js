@@ -24,10 +24,9 @@ router.get('/:id', async (req, res) => {
 });
 router.post('/', async (req, res) => {
   try {
-    const { length, budget, status, path } = req.body;
+    const { budget, status, path } = req.body;
 
     const trip = await Trip.create({
-      length,
       budget,
       status,
       path
@@ -41,10 +40,9 @@ router.post('/', async (req, res) => {
 });
 router.put('/:id', async (req, res) => {
   try {
-    const { length, budget, status, path } = req.body;
+    const { budget, status, path } = req.body;
 
     const trip = await Trip.update(req.params.id, clearNotSet({
-      length,
       budget,
       status,
       path

@@ -8,13 +8,13 @@ const penaltySchema = new Schema({
     required: true
   },
   reason: String,
-  _driver: {
-    type: Schema.Types.ObjectId,
-    ref: 'driver'
+  driverId: {
+    type: String,
+    required: true
   },
-  _car: {
-    type: Schema.Types.ObjectId,
-    ref: 'driver'
+  carId: {
+    type: String,
+    required: true
   }
 });
 

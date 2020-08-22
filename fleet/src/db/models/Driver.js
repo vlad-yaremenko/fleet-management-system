@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const Faker = require('faker');
 
 const driverSchema = new Schema({
   firstname: {
@@ -16,6 +17,10 @@ const driverSchema = new Schema({
   _trip: {
     type: Schema.Types.ObjectId,
     ref: 'trip'
+  },
+  _car: {
+    type: Schema.Types.ObjectId,
+    ref: 'car'
   }
 });
 
@@ -32,3 +37,17 @@ module.exports = {
   findById: (id) => Driver.findById(id),
   isExists: (query) => Driver.exists(query)
 };
+
+// ----------- MOCK -------------------
+
+const getDriver = (i) => ({
+  "firstname": Faker.name.firstName(),
+  "lastname": Faker.name.lastName(),
+  "gander": "male",
+  "rate": Faker.random.number(),
+  "bornDate": Faker.date.past().toISOString()
+});
+
+for (let i = 0; i < 10; i++) {
+  new Driver(getDriver(i)).save();
+}
