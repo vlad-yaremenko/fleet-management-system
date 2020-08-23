@@ -1,5 +1,5 @@
 module.exports = {
-  clearNotSet(data) {
+  removeNotSetProps(data) {
     return Object.keys(data)
       .reduce((result, key) => {
         if (data[key]) {

@@ -16,8 +16,7 @@ services:
     depends_on:
       - db
       - fleet
-    environment:
-      - MONGO_DB_URI=mongodb://db/simulation
+      - inspector
 
   inspector:
     build: './inspector'
@@ -25,7 +24,6 @@ services:
       - "3003:3000"
     depends_on:
       - db
-      - simulation
     environment:
       - MONGO_DB_URI=mongodb://db/inspector
 

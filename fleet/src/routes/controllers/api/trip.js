@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const Trip = require('../../../db/models/Trip');
-const { clearNotSet } = require('../../../utils/helper');
+const { removeNotSetProps } = require('../../../utils/helper');
 
 router.get('/', async (req, res) => {
   try {
@@ -42,7 +42,7 @@ router.put('/:id', async (req, res) => {
   try {
     const { budget, status, path } = req.body;
 
-    const trip = await Trip.update(req.params.id, clearNotSet({
+    const trip = await Trip.update(req.params.id, removeNotSetProps({
       budget,
       status,
       path

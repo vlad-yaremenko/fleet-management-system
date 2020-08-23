@@ -1,55 +1,46 @@
-const fetch = require("node-fetch");
 const express = require('express');
 const app = express();
-const bodyParser = require('body-parser');
-
 const inspectorPusher = require('./core/inspector-pusher');
+const mocker = require('./core/mocker');
+const gis = require('./core/gis');
 
-// TODO: For each driver with trip and car generate push car state data by trip path
-setTimeout(async () => {
-  let drivers;
-  let cars;
-  let trips;
+mocker().then(({ drivers }) => {
+  drivers = drivers.filter(driver => driver._car && driver._trip);
 
-  await Promise.all([
-    fetch('http://fleet:3000/api/driver').then(async (res) => {
-      drivers = await res.json();
-    }),
-    fetch('http://fleet:3000/api/trip').then(async (res) => {
-      trips = await res.json();
-    }),
-    fetch('http://fleet:3000/api/car').then(async (res) => {
-      cars = await res.json();
-    })
-  ]);
+  drivers.forEach(driver => {
+    const state = carStateGenerator(driver._trip, driver._car);
 
-  await Promise.all(drivers.map(async (driver, index) => {
-    return (await fetch(`http://fleet:3000/api/driver/${driver._id}/car`, {
-      method: 'PUT',
-      body: JSON.stringify({ carId: cars[index]._id }),
-      headers: { 'Content-Type': 'application/json' }
-    })).json();
-  }));
+    const interval = setInterval(() => {
+      const value = state.next().value;
 
-  drivers = await Promise.all(drivers.map(async (driver, index) => {
-    return (await fetch(`http://fleet:3000/api/driver/${driver._id}/trip`, {
-      method: 'PUT',
-      body: JSON.stringify({ tripId: trips[index]._id }),
-      headers: { 'Content-Type': 'application/json' },
-    })).json();
-  }));
+      if (value) {
+        inspectorPusher.pushCarState(value);
+      } else {
+        clearInterval(interval);
+        console.log(`I'm done :)`);
+      }
+    }, 1000);
+  });
+});
 
-  drivers
-    .filter(driver => driver._trip)
-    .forEach((driver, index) => {
-      inspectorPusher.pushCarState({
-        carId: driver._car,
-        speed: 10 * index,
-        coordinates: [23, 23]
-      });
-    });
-}, 2000);
+function* carStateGenerator(trip, carId) {
+  for (let i = 0; i < trip.path.length - 1; i++) {
+    const start = trip.path[i];
+    const end = trip.path[i + 1];
+    const totalDistance = gis.calculateDistance(start, end);
+    const bearing = gis.getBearing(start, end);
 
-app.use(bodyParser.json());
+    for (let percent = 0; percent <= 100; percent += 10) {
+      const distance = (percent / 100) * totalDistance;
+      const coordinates = gis.createCoord([10, 10], bearing, distance); // 10, 10 is a mock cause it's needed icon_coord
+
+      yield {
+        carId,
+        speed: Math.random() * (120 - 40) + 40,
+        coordinates
+      };
+    }
+  }
+}
 
 module.exports = app;

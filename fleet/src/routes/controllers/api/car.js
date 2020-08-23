@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const Car = require('../../../db/models/Car');
 const Driver = require('../../../db/models/Driver');
-const { clearNotSet } = require('../../../utils/helper');
+const { removeNotSetProps } = require('../../../utils/helper');
 
 router.get('/', async (req, res) => {
   try {
@@ -56,7 +56,7 @@ router.put('/:id', async (req, res) => {
   try {
     const { registrationPlate, brand, model, color, vin, type } = req.body;
 
-    const car = await Car.update(req.params.id, clearNotSet({
+    const car = await Car.update(req.params.id, removeNotSetProps({
       registrationPlate,
       brand,
       model,

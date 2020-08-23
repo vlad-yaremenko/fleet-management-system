@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const Driver = require('../../../db/models/Driver');
 const Trip = require('../../../db/models/Trip');
-const { clearNotSet } = require('../../../utils/helper');
+const { removeNotSetProps } = require('../../../utils/helper');
 
 router.get('/', async (req, res) => {
   try {
@@ -45,7 +45,7 @@ router.put('/:id', async (req, res) => {
   try {
     const { firstname, lastname, gender, rate, bornDate } = req.body;
 
-    const driver = await Driver.update(req.params.id, clearNotSet({
+    const driver = await Driver.update(req.params.id, removeNotSetProps({
       firstname,
       lastname,
       gender,
